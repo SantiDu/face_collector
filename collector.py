@@ -2,11 +2,12 @@ import cv2
 import numpy as np
 import dlib
 import os
-from ultra_face_opencvdnn_inference import inference
+# from ultra_face_opencvdnn_inference import inference
 from headpose import get_cammtx, get_head_pose
 from imutils import face_utils
 from ypr_angle import ypr
 
+face_detector = dlib.get_frontal_face_detector()
 lm_detector = dlib.shape_predictor("./shape_predictor_68_face_landmarks.dat")
 fa = face_utils.facealigner.FaceAligner(lm_detector, desiredLeftEye=(0.32, 0.32))
 
@@ -67,15 +68,21 @@ while(True):
         radius_diff = 10
 
     # Detect faces
-    rgb_img = cv2.cvtColor(masked_data, cv2.COLOR_BGR2RGB)
-    boxes, _, _ = inference(rgb_img)
+    # rgb_img = cv2.cvtColor(masked_data, cv2.COLOR_BGR2RGB)
+    # boxes, _, _ = inference(rgb_img)
+    gray = cv2.cvtColor(masked_data, cv2.COLOR_BGR2GRAY)
+    faces = face_detector(gray)
 
     # Detect landmarks
-    if boxes.shape[0]:
-        box = boxes[0, :]
-        x1, y1, x2, y2 = box 
+    # if boxes.shape[0]:
+    #     box = boxes[0, :]
+    #     x1, y1, x2, y2 = box
+    if any(faces):
+        face = faces[0]
+        x1, y1, x2, y2 = face.left(), face.top(), face.right(), face.bottom()
         cv2.rectangle(masked_data, (x1, y1), (x2, y2), (255, 255, 0), 3)
-        landmarks = lm_detector(rgb_img, dlib.rectangle(left = x1, top=y1, right=x2, bottom=y2))
+        landmarks = lm_detector(gray, face)
+        # landmarks = lm_detector(rgb_img, dlib.rectangle(left = x1, top=y1, right=x2, bottom=y2))
         shape = face_utils.shape_to_np(landmarks)
         euler_angle = get_head_pose(shape, get_cammtx(frame))
         pitch = euler_angle[0, 0]
