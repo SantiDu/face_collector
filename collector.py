@@ -9,7 +9,7 @@ from ypr_angle import ypr
 
 face_detector = dlib.get_frontal_face_detector()
 lm_detector = dlib.shape_predictor("./shape_predictor_68_face_landmarks.dat")
-fa = face_utils.facealigner.FaceAligner(lm_detector, desiredLeftEye=(0.32, 0.32))
+fa = face_utils.facealigner.FaceAligner(lm_detector, desiredLeftEye=(0.3, 0.3))
 
 def angles2lines(angles, radius, offset=5, length=10):
     lines = []
@@ -97,7 +97,7 @@ while(True):
         if capturing == 0:
             for pr in ypr:
                 if pr[2] == 0: 
-                    if pr[0][0] - 5< pitch < pr[0][0] + 5 and pr[0][1] - 5 < yaw < pr[0][1] + 5 and -10 < roll < 10:
+                    if pr[0][0] - 3 < pitch < pr[0][0] + 3 and pr[0][1] - 5 < yaw < pr[0][1] + 5 and -15 < roll < 15:
                         capturing = 1
                         drawing = 1
                         index = 0
@@ -112,7 +112,7 @@ while(True):
         angles = range(pr[1][0], pr[1][1], 2)
         radius_diff = 20
         lines = angles2lines(angles, radius, length=radius_diff)
-        freq = 5
+        freq = 3000
         if count % freq == 0:
             for points in lines[:index]:
                 p1_x, p1_y, p2_x, p2_y = points
